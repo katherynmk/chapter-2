@@ -1,37 +1,18 @@
-const http = require('http')
-const fs = require('fs')
-const port = process.env.PORT || 3000
+const express = require('express');
+const app = express();
+const path = require('path');
+const router = express.Router();
 
-function serveStaticFile(res, path, contentType, responseCode = 200) {
-  fs.readFile(__dirname + path, (err, data) => {
-    if(err) {
-      res.writeHead(500, { 'Content-Type': 'text/plain' })
-      return res.end('500 - Internal Error')
-    }
-    res.writeHead(responseCode, { 'Content-Type': contentType })
-    res.end(data)
-  })
-}
+router.get('/',function(req,res){
+  res.sendFile(path.join(__dirname+'/home.html'));
+  //__dirname : It will resolve to your project folder.
+});
+router.get('/about.html',function(req,res){
+  res.sendFile(path.join(__dirname+'/about.html'));
+  //__dirname : It will resolve to your project folder.
+});
 
-const server = http.createServer((req,res) => {
-  // normalize url by removing querystring, optional trailing slash, and
-  // making lowercase
-  const path = req.url.replace(/\/?(?:\?.*)?$/, '').toLowerCase()
-  switch(path) {
-    case '':
-      serveStaticFile(res, 'home.html', 'text/html')
-      break
-    case '/about':
-      serveStaticFile(res, 'about.html', 'text/html')
-      break
-    case '/img/logo.png':
-      serveStaticFile(res, 'logo.png', 'image/png')
-      break
-    default:
-      serveStaticFile(res, '404.html', 'text/html', 404)
-      break
-  }
-})
+app.use('/', router);
+app.listen(process.env.port || 3000);
 
-server.listen(port, () => console.log(`server started on port ${port}; ` +
-  'press Ctrl-C to terminate....'))
+console.log('Running at Port 3000');
